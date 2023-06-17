@@ -1,0 +1,19 @@
+{
+  "name": "file-metadata",
+  "version": "1.0.0",
+  "description": "An api that serves metadata for any file uploaded",
+  "main": "src/index.mjs",
+  "type": "module",
+  "scripts": {
+    "dev": "PORT=8080 node src/index.mjs"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "keywords": [
+    "node",
+    "freecodecamp"
+  ],
+  "author": "unchainedDavid",
+  "license": "MIT"
+}
