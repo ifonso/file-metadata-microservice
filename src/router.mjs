@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
-import busboy from "busboy";
+
+import { parseMultipartFormData } from "./services.mjs";
 
 class Router {
   /**
@@ -10,38 +11,28 @@ class Router {
    * @param {http.ServerResponse} response - The HTTP response object.
    * @returns {void}
    */
-  #upload(request, response) {
-    const handler = busboy({ headers: request.headers });
+  async #upload(request, response) {
+    try {
+      const data = await parseMultipartFormData(request);
 
-    let fileName;
-    let mimeType;
-    let fileSize;
-
-    handler.on("file", (fildname, file, info) => {
-      fileName = info.filename;
-      mimeType = info.mimeType;
-      fileSize = 0;
-
-      file.on("data", (data) => {
-        fileSize += data.length;
-      });
-    });
-
-    handler.on("close", () => {
       response.writeHead(200, {
         "Content-Type": "application/json"
       });
 
       response.end(
         JSON.stringify({
-          "name": fileName,
-          "type": mimeType,
-          "size": fileSize
+          "name": data.fileName,
+          "type": data.mimeType,
+          "size": data.fileSize
         })
-      );
-    });
+      )
+    } catch (error) {
+      response.writeHead(500, {
+        "Content-Type": "text/plain"
+      });
 
-    request.pipe(handler);
+      response.end("Error occurred: " + error.message);
+    }
   }
 
   /**
@@ -68,7 +59,7 @@ class Router {
    * @param {http.ServerResponse} response - The HTTP response object.
    * @returns {void}
    */
-  handler(request, response) {
+  async handler(request, response) {
     const { method, url } = request;
 
     // Main Page
@@ -80,7 +71,7 @@ class Router {
     // Upload
     if (url === "/api/fileanalyse" && method === "POST") {
       response.setHeader("Access-Control-Allow-Origin", "*");
-      return this.#upload.apply(this, [request, response]);
+      return await this.#upload.apply(this, [request, response]);
     }
 
     // Not Found
