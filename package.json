@@ -15,5 +15,8 @@
     "freecodecamp"
   ],
   "author": "unchainedDavid",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "busboy": "^1.6.0"
+  }
 }

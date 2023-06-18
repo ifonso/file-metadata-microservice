@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import busboy from "busboy";
 
 class Router {
   /**
@@ -9,7 +10,39 @@ class Router {
    * @param {http.ServerResponse} response - The HTTP response object.
    * @returns {void}
    */
-  #upload(request, response) {}
+  #upload(request, response) {
+    const handler = busboy({ headers: request.headers });
+
+    let fileName;
+    let mimeType;
+    let fileSize;
+
+    handler.on("file", (fildname, file, info) => {
+      fileName = info.filename;
+      mimeType = info.mimeType;
+      fileSize = 0;
+
+      file.on("data", (data) => {
+        fileSize += data.length;
+      });
+    });
+
+    handler.on("close", () => {
+      response.writeHead(200, {
+        "Content-Type": "application/json"
+      });
+
+      response.end(
+        JSON.stringify({
+          "name": fileName,
+          "type": mimeType,
+          "size": fileSize
+        })
+      );
+    });
+
+    request.pipe(handler);
+  }
 
   /**
    * Handles the default route and sends the default HTML file as the response.
