@@ -68,7 +68,7 @@ class Router {
    * @param {http.ServerResponse} response - The HTTP response object.
    * @returns {void}
    */
-  async handler(request, response) {
+  handler(request, response) {
     const { method, url } = request;
 
     // Main Page
